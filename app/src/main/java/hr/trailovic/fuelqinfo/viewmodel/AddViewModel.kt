@@ -3,12 +3,22 @@ package hr.trailovic.fuelqinfo.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import hr.trailovic.fuelqinfo.model.DateOption
+import hr.trailovic.fuelqinfo.model.FuelRecord
+import hr.trailovic.fuelqinfo.repo.FuelRepository
+import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
-class AddViewModel : ViewModel() {
+@HiltViewModel
+class AddViewModel @Inject constructor(
+    private val repo: FuelRepository,
+) : ViewModel() {
+
     private val _dayPick = MutableLiveData<Pair<DateOption, Long>>() // date option + date
-    val payPick: LiveData<Pair<DateOption, Long>> = _dayPick
+    val dayPick: LiveData<Pair<DateOption, Long>> = _dayPick
 
     init {
         setDayPickToday()
@@ -27,5 +37,35 @@ class AddViewModel : ViewModel() {
             calendar.timeInMillis = date
         }
         _dayPick.postValue(Pair(DateOption.ANOTHER_DAY, calendar.timeInMillis))
+    }
+
+    fun saveFuelRecordData(odometer: Int, liters: Double, comment: String?) {
+        viewModelScope.launch {
+            val fuelRecord = FuelRecord(odometer, liters, dayPick.value?.second ?: 0, comment) //todo: lift check before the function call
+            repo.addFuelRecordSuspended(fuelRecord)
+        }
+    }
+
+    fun updateFuelRecordData(
+        fuelRecord: FuelRecord,
+        odometer: Int,
+        liters: Double,
+        comment: String?
+    ) {
+        viewModelScope.launch {
+            val updatedFuelRecord = fuelRecord.copy(
+                odometer = odometer,
+                liters = liters,
+                date = dayPick.value?.second ?: 0, //todo: lift this check before the function call
+                comment = comment
+            )
+            repo.updateFuelRecordSuspended(updatedFuelRecord)
+        }
+    }
+
+    fun removeAllFuelRecords() {
+        viewModelScope.launch {
+            repo.removeAllFuelRecords()
+        }
     }
 }
