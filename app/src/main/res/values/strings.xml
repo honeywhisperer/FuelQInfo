@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Fuel Q Info</string>
+    <string name="odometer_status">Odometer status</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="fuel_amount">Fuel amount</string>
+    <string name="today">Today</string>
+    <string name="another_day">Another day</string>
+    <string name="date_of_refueling">Date of refueling</string>
+    <string name="pick_the_date_of_refueling">Pick the date of refueling</string>
+    <string name="comment">Comment</string>
 </resources>
