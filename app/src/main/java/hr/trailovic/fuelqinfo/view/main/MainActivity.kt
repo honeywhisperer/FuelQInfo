@@ -1,10 +1,13 @@
 package hr.trailovic.fuelqinfo.view.main
 
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import hr.trailovic.fuelqinfo.R
 import hr.trailovic.fuelqinfo.databinding.ActivityMainBinding
 import hr.trailovic.fuelqinfo.view.add.AddActivity
 import hr.trailovic.fuelqinfo.view.main.refueling.RefuelingFragment
@@ -44,6 +47,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 0->"Refueling"
                 1->"Stats"
                 else->"Error"
+            }
+            tab.icon = when(position){
+                0-> AppCompatResources.getDrawable(this, R.drawable.ic_gas)
+                else-> AppCompatResources.getDrawable(this, R.drawable.ic_stats)
             }
         }.attach()
     }
