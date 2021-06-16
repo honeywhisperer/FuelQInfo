@@ -67,6 +67,9 @@ class StatsAdapter : RecyclerView.Adapter<StatsAdapter.StatsViewHolder>() {
             }
             statElement.list?.let { list ->
                 itemStatisticsBinding.cubiclinechart.visibility = View.VISIBLE
+
+                itemStatisticsBinding.cubiclinechart.isUseCubic = list.size <= 10
+
                 val lineChart: ValueLineChart = itemStatisticsBinding.cubiclinechart
                 val series = ValueLineSeries()
                 series.color = 0xFF56B7F1.toInt()

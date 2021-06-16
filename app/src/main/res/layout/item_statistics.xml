@@ -33,7 +33,7 @@
             app:egCurveSmoothness="0.4"
             app:egShowStandardValue="false"
             app:egShowValueIndicator="false"
-            app:egUseCubic="true"
+            app:egUseCubic="false"
             app:egXAxisStroke="0dp" />
 
     </LinearLayout>
