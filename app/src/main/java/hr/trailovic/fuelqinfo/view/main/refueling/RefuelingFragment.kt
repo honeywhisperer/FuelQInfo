@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import hr.trailovic.fuelqinfo.databinding.FragmentRefuelingBinding
 import hr.trailovic.fuelqinfo.model.FuelRecord
+import hr.trailovic.fuelqinfo.view.add.AddActivity
 import hr.trailovic.fuelqinfo.viewmodel.FuelViewModel
 import hr.trailovic.weatherqinfo.base.BaseFragment
 
@@ -17,6 +18,8 @@ class RefuelingFragment : BaseFragment<FragmentRefuelingBinding>() {
     private val refuelingAdapter = RefuelingAdapter(object : OnItemFuelRecordInteraction{
         override fun onClick(fuelRecord: FuelRecord) {
             //todo: display menu with options: edit, remove
+            val newIntent = AddActivity.createIntent(requireContext(), fuelRecord)
+            startActivity(newIntent)
         }
     })
     private val viewModel: FuelViewModel by viewModels()

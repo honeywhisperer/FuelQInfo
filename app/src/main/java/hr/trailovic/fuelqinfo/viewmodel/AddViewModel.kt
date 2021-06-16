@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import hr.trailovic.fuelqinfo.model.DateOption
 import hr.trailovic.fuelqinfo.model.FuelRecord
 import hr.trailovic.fuelqinfo.repo.FuelRepository
+import hr.trailovic.fuelqinfo.toDateString
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -39,9 +40,25 @@ class AddViewModel @Inject constructor(
         _dayPick.postValue(Pair(DateOption.ANOTHER_DAY, calendar.timeInMillis))
     }
 
+    fun setDateWhenEditing(date: Long) {
+        val inputDate = date.toDateString()
+        val today = System.currentTimeMillis().toDateString()
+
+        if (inputDate == today) {
+            _dayPick.postValue(Pair(DateOption.TODAY, date))
+        } else {
+            _dayPick.postValue(Pair(DateOption.ANOTHER_DAY, date))
+        }
+    }
+
     fun saveFuelRecordData(odometer: Int, liters: Double, comment: String?) {
         viewModelScope.launch {
-            val fuelRecord = FuelRecord(odometer, liters, dayPick.value?.second ?: 0, comment) //todo: lift check before the function call
+            val fuelRecord = FuelRecord(
+                odometer,
+                liters,
+                dayPick.value?.second ?: 0,
+                comment
+            ) //todo: lift check before the function call
             repo.addFuelRecordSuspended(fuelRecord)
         }
     }

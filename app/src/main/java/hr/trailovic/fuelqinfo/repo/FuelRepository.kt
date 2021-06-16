@@ -30,4 +30,8 @@ class FuelRepository @Inject constructor(
         return fuelRecordDao.getAllFuelRecords()
     }
 
+    fun getAllFuelRecordsList(): List<FuelRecord> {
+        return fuelRecordDao.getAllFuelRecordsList()
+    }
+
 }

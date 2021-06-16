@@ -9,19 +9,16 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import hr.trailovic.fuelqinfo.databinding.ActivityAddBinding
-import hr.trailovic.fuelqinfo.displayMessage
 import hr.trailovic.fuelqinfo.model.DateOption
 import hr.trailovic.fuelqinfo.model.FuelRecord
 import hr.trailovic.fuelqinfo.toLongDateString
 import hr.trailovic.fuelqinfo.viewmodel.AddViewModel
-import hr.trailovic.fuelqinfo.viewmodel.FuelViewModel
 import hr.trailovic.weatherqinfo.base.BaseActivity
 
 @AndroidEntryPoint
 class AddActivity : BaseActivity<ActivityAddBinding>() {
 
     private val viewModel: AddViewModel by viewModels()
-    private val vm: FuelViewModel by viewModels() //test
     private lateinit var datePicker: MaterialDatePicker<Long>
     private var toBeEdited: FuelRecord? = null
 
@@ -46,8 +43,18 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
     }
 
     private fun bind() {
-        vm.fuelRecords.observe(this) {
-            displayMessage(this, it)
+        viewModel.dayPick.observe(this) { dateOptionAndDate ->
+            when (dateOptionAndDate.first) {
+                DateOption.TODAY -> {
+                    binding.layoutAddInputFields.tilDate.visibility = View.GONE
+                    binding.layoutAddInputFields.rbToday.isChecked = true
+                }
+                DateOption.ANOTHER_DAY -> {
+                    binding.layoutAddInputFields.tilDate.visibility = View.VISIBLE
+                    binding.layoutAddInputFields.tilDate.editText?.setText(dateOptionAndDate.second.toLongDateString())
+                    binding.layoutAddInputFields.rbAnotherDay.isChecked = true
+                }
+            }
         }
     }
 
@@ -67,24 +74,20 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
         else
             "Add New Fuel Record"
 
-        viewModel.dayPick.observe(this) { dateOptionAndDate ->
-            when (dateOptionAndDate.first) {
-                DateOption.TODAY -> {
-                    binding.layoutAddInputFields.tilDate.visibility = View.GONE
-                }
-                DateOption.ANOTHER_DAY -> {
-                    binding.layoutAddInputFields.tilDate.visibility = View.VISIBLE
-                    binding.layoutAddInputFields.tilDate.editText?.setText(dateOptionAndDate.second.toLongDateString())
-                }
-            }
+        toBeEdited?.let {
+            viewModel.setDateWhenEditing(it.date)
+            binding.layoutAddInputFields.tilOdometerStatus.editText?.setText(it.odometer.toString())
+            binding.layoutAddInputFields.tilLiters.editText?.setText(it.liters.toString())
+            binding.layoutAddInputFields.tilComment.editText?.setText(it.comment)
         }
     }
 
     private fun setListeners() {
+
         binding.layoutAddInputFields.btnSave.setOnClickListener {
             val isOdometerInputOk =
-                isInputPositiveNumber(binding.layoutAddInputFields.tilOdometerStatus)
-            val isFuelInputOk = isInputPositiveNumber(binding.layoutAddInputFields.tilLiters)
+                isInputPositiveInt(binding.layoutAddInputFields.tilOdometerStatus)
+            val isFuelInputOk = isInputPositiveDouble(binding.layoutAddInputFields.tilLiters)
             if (isOdometerInputOk && isFuelInputOk) {
                 with(binding.layoutAddInputFields) {
                     val odometer = tilOdometerStatus.editText?.text.toString().toInt()
@@ -95,28 +98,22 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
                         viewModel.updateFuelRecordData(it, odometer, liters, comment)
                     } ?: viewModel.saveFuelRecordData(odometer, liters, comment)
                 }
-                //todo: return to MainActivity
                 setResult(Activity.RESULT_OK)
                 finish()
             }
         }
 
         binding.layoutAddInputFields.btnCancel.setOnClickListener {
-            //todo: return to MainActivity
             setResult(Activity.RESULT_CANCELED)
             finish()
-        }
-
-        binding.layoutAddInputFields.btnCancel.setOnLongClickListener {
-            viewModel.removeAllFuelRecords() // todo: remove this
-            true
         }
 
         binding.layoutAddInputFields.rgDate.setOnCheckedChangeListener { _, _ ->
             if (binding.layoutAddInputFields.rbToday.isChecked) {
                 viewModel.setDayPickToday()
             } else {
-                viewModel.setDayPickAnotherDay()
+                toBeEdited?.let { viewModel.setDayPickAnotherDay(it.date) }
+                    ?: viewModel.setDayPickAnotherDay()
             }
         }
 
@@ -130,7 +127,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
         }
     }
 
-    private fun isInputPositiveNumber(til: TextInputLayout): Boolean {
+    private fun isInputPositiveInt(til: TextInputLayout): Boolean {
         val input = til.editText?.text.toString()
         val isNotBlank = input.isNotBlank()
         if (isNotBlank.not()) {
@@ -140,6 +137,26 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
             til.error = null
         }
         val number = input.toIntOrNull()
+        val isPositive = number?.let { it > 0 } ?: false
+        if (isPositive.not()) {
+            til.error = "Required positive number"
+            return false
+        } else {
+            til.error = null
+        }
+        return true
+    }
+
+    private fun isInputPositiveDouble(til: TextInputLayout): Boolean {
+        val input = til.editText?.text.toString()
+        val isNotBlank = input.isNotBlank()
+        if (isNotBlank.not()) {
+            til.error = "Required"
+            return false
+        } else {
+            til.error = null
+        }
+        val number = input.toDoubleOrNull()
         val isPositive = number?.let { it > 0 } ?: false
         if (isPositive.not()) {
             til.error = "Required positive number"
