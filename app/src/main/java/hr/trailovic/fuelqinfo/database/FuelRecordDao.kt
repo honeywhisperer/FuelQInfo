@@ -24,6 +24,4 @@ interface FuelRecordDao {
     @Query("SELECT * FROM FuelRecord ORDER BY odometer")
     fun getAllFuelRecords(): Flow<List<FuelRecord>>
 
-    @Query("SELECT * FROM FuelRecord ORDER BY odometer")
-    fun getAllFuelRecordsList(): List<FuelRecord>
 }

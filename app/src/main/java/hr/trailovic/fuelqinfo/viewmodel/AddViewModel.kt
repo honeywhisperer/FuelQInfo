@@ -85,4 +85,5 @@ class AddViewModel @Inject constructor(
             repo.removeAllFuelRecords()
         }
     }
+
 }

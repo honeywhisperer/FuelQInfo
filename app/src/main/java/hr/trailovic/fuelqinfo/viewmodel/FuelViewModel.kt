@@ -26,6 +26,7 @@ class FuelViewModel @Inject constructor(
 
     init {
         getFuelRecords()
+        calculateStatistics()
     }
 
     private fun getFuelRecords() {
@@ -39,26 +40,29 @@ class FuelViewModel @Inject constructor(
     private fun calculateStatistics() {
         viewModelScope.launch {
             repo.getAllFuelRecords().collect { fuelList ->
-                val totalLiters = fuelList.map { it.liters }.sum()
-                val totalDistance = fuelList.last().odometer - fuelList.first().odometer
+                if (fuelList.isNotEmpty()){
+                    val totalLiters = fuelList.map { it.liters }.sum()
+                    val totalDistance = fuelList.last().odometer - fuelList.first().odometer
 
-                val consumptionList = mutableListOf<Double>()
-                val drivenList = mutableListOf<Double>()
+                    val consumptionList = mutableListOf<Double>()
+                    val drivenList = mutableListOf<Double>()
 
-                for (i in 1..fuelList.lastIndex) {
-                    consumptionList.add(fuelList[i].liters / (fuelList[i].odometer - fuelList[i - 1].odometer) * 100)
-                    drivenList.add((fuelList[i].odometer - fuelList[i-1].odometer).toDouble())
+                    for (i in 1..fuelList.lastIndex) {
+                        consumptionList.add(fuelList[i].liters / (fuelList[i].odometer - fuelList[i - 1].odometer) * 100)
+                        drivenList.add((fuelList[i].odometer - fuelList[i-1].odometer).toDouble())
+                    }
+
+                    val consumptionStatistics = ConsumptionStatistics(
+                        StatElement(100*totalLiters/totalDistance, consumptionList),
+                        StatElement(drivenList.average(), drivenList),
+                        StatElement(consumptionList.minOf { it }, consumptionList),
+                        StatElement(drivenList.maxOf { it }, drivenList),
+                        StatElement(fuelList.size, null),
+                        StatElement(totalDistance, null)
+                    )
+                    _consumptionStatistics.postValue(consumptionStatistics)
                 }
 
-                val consumptionStatistics = ConsumptionStatistics(
-                    StatElement(100*totalLiters/totalDistance, consumptionList),
-                    StatElement(drivenList.average(), drivenList),
-                    StatElement(consumptionList.minOf { it }, consumptionList),
-                    StatElement(drivenList.maxOf { it }, drivenList),
-                    StatElement(fuelList.size, null),
-                    StatElement(totalDistance, null)
-                )
-                _consumptionStatistics.postValue(consumptionStatistics)
             }
         }
     }

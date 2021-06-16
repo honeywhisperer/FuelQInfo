@@ -8,12 +8,13 @@ import hr.trailovic.fuelqinfo.model.FuelRecord
 import hr.trailovic.fuelqinfo.oneDecimal
 import hr.trailovic.fuelqinfo.toDateString
 
-class RefuelingAdapter(private val listener: OnItemFuelRecordInteraction) : RecyclerView.Adapter<RefuelingAdapter.FuelRecordViewHolder>() {
+class RefuelingAdapter(private val listener: OnItemFuelRecordInteraction) :
+    RecyclerView.Adapter<RefuelingAdapter.FuelRecordViewHolder>() {
 
     private val fuelList = mutableListOf<FuelRecord>()
 
-    fun setItems(list: List<FuelRecord>){
-        with(fuelList){
+    fun setItems(list: List<FuelRecord>) {
+        with(fuelList) {
             clear()
             addAll(list)
         }
@@ -21,7 +22,8 @@ class RefuelingAdapter(private val listener: OnItemFuelRecordInteraction) : Recy
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FuelRecordViewHolder {
-        val itemFuelRecordBinding = ItemFuelRecordBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val itemFuelRecordBinding =
+            ItemFuelRecordBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return FuelRecordViewHolder(itemFuelRecordBinding)
     }
 
@@ -40,11 +42,19 @@ class RefuelingAdapter(private val listener: OnItemFuelRecordInteraction) : Recy
         }
 
         fun bind(fuelRecord: FuelRecord) {
-            with(itemFuelRecordBinding){
+            with(itemFuelRecordBinding) {
                 tvOdometer.text = fuelRecord.odometer.toString()
                 tvLiters.text = fuelRecord.liters.oneDecimal()
                 tvDate.text = fuelRecord.date.toDateString()
-                tvComment.text = fuelRecord.comment ?: ""
+                var commentText = ""
+                if (fuelRecord.comment!=null) {
+                    commentText = if (fuelRecord.comment.length > 12) {
+                        fuelRecord.comment.substring(0..10) + "..."
+                    } else {
+                        fuelRecord.comment
+                    }
+                }
+                tvComment.text = commentText
             }
         }
     }
