@@ -1,5 +1,6 @@
 package hr.trailovic.fuelqinfo.view.add
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.View
@@ -11,7 +12,7 @@ import hr.trailovic.fuelqinfo.databinding.ActivityAddBinding
 import hr.trailovic.fuelqinfo.displayMessage
 import hr.trailovic.fuelqinfo.model.DateOption
 import hr.trailovic.fuelqinfo.model.FuelRecord
-import hr.trailovic.fuelqinfo.toDateString
+import hr.trailovic.fuelqinfo.toLongDateString
 import hr.trailovic.fuelqinfo.viewmodel.AddViewModel
 import hr.trailovic.fuelqinfo.viewmodel.FuelViewModel
 import hr.trailovic.weatherqinfo.base.BaseActivity
@@ -73,7 +74,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
                 }
                 DateOption.ANOTHER_DAY -> {
                     binding.layoutAddInputFields.tilDate.visibility = View.VISIBLE
-                    binding.layoutAddInputFields.tilDate.editText?.setText(dateOptionAndDate.second.toDateString())
+                    binding.layoutAddInputFields.tilDate.editText?.setText(dateOptionAndDate.second.toLongDateString())
                 }
             }
         }
@@ -94,12 +95,16 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
                         viewModel.updateFuelRecordData(it, odometer, liters, comment)
                     } ?: viewModel.saveFuelRecordData(odometer, liters, comment)
                 }
+                //todo: return to MainActivity
+                setResult(Activity.RESULT_OK)
+                finish()
             }
-            //todo: return to MainActivity
         }
 
         binding.layoutAddInputFields.btnCancel.setOnClickListener {
             //todo: return to MainActivity
+            setResult(Activity.RESULT_CANCELED)
+            finish()
         }
 
         binding.layoutAddInputFields.btnCancel.setOnLongClickListener {
@@ -120,7 +125,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
         }
 
         datePicker.addOnPositiveButtonClickListener {
-            binding.layoutAddInputFields.tilDate.editText?.setText(it.toDateString())
+            binding.layoutAddInputFields.tilDate.editText?.setText(it.toLongDateString())
             viewModel.setDayPickAnotherDay(it)
         }
     }
@@ -148,7 +153,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
     companion object {
         private const val TAG = "AddActivity:::"
         private const val ARG_EDIT_FUEL_RECORD = "22121"
-        fun createIntent(context: Context, fuelRecord: FuelRecord?) =
+        fun createIntent(context: Context, fuelRecord: FuelRecord? = null) =
             Intent(context, AddActivity::class.java).apply {
                 fuelRecord?.let {
                     putExtra(ARG_EDIT_FUEL_RECORD, it)
