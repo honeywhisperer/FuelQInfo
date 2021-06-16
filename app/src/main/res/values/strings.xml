@@ -9,4 +9,6 @@
     <string name="date_of_refueling">Date of refueling</string>
     <string name="pick_the_date_of_refueling">Pick the date of refueling</string>
     <string name="comment">Comment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

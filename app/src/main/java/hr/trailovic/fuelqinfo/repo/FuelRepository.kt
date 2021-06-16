@@ -2,6 +2,7 @@ package hr.trailovic.fuelqinfo.repo
 
 import hr.trailovic.fuelqinfo.database.AppDatabase
 import hr.trailovic.fuelqinfo.model.FuelRecord
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class FuelRepository @Inject constructor(
@@ -23,6 +24,10 @@ class FuelRepository @Inject constructor(
 
     suspend fun removeAllFuelRecords(){
         fuelRecordDao.removeAllFuelRecords()
+    }
+
+    fun getAllFuelRecords(): Flow<List<FuelRecord>> {
+        return fuelRecordDao.getAllFuelRecords()
     }
 
 }

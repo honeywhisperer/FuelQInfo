@@ -8,17 +8,19 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import hr.trailovic.fuelqinfo.databinding.ActivityAddBinding
-import hr.trailovic.fuelqinfo.flashMessage
+import hr.trailovic.fuelqinfo.displayMessage
 import hr.trailovic.fuelqinfo.model.DateOption
 import hr.trailovic.fuelqinfo.model.FuelRecord
 import hr.trailovic.fuelqinfo.toDateString
 import hr.trailovic.fuelqinfo.viewmodel.AddViewModel
+import hr.trailovic.fuelqinfo.viewmodel.FuelViewModel
 import hr.trailovic.weatherqinfo.base.BaseActivity
 
 @AndroidEntryPoint
 class AddActivity : BaseActivity<ActivityAddBinding>() {
 
     private val viewModel: AddViewModel by viewModels()
+    private val vm: FuelViewModel by viewModels() //test
     private lateinit var datePicker: MaterialDatePicker<Long>
     private var toBeEdited: FuelRecord? = null
 
@@ -39,6 +41,13 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
         setDatePicker()
         setView()
         setListeners()
+        bind()
+    }
+
+    private fun bind() {
+        vm.fuelRecords.observe(this) {
+            displayMessage(this, it)
+        }
     }
 
     private fun setDatePicker() {
@@ -52,7 +61,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
     }
 
     private fun setView() {
-        binding.topAppBar.title = if (toBeEdited != null)
+        binding.layoutTopAppBar.topAppBar.title = if (toBeEdited != null)
             "Edit Fuel Record"
         else
             "Add New Fuel Record"
@@ -76,12 +85,9 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
                 isInputPositiveNumber(binding.layoutAddInputFields.tilOdometerStatus)
             val isFuelInputOk = isInputPositiveNumber(binding.layoutAddInputFields.tilLiters)
             if (isOdometerInputOk && isFuelInputOk) {
-//                testInputTemp() //temp - remove
-
                 with(binding.layoutAddInputFields) {
                     val odometer = tilOdometerStatus.editText?.text.toString().toInt()
                     val liters = tilLiters.editText?.text.toString().toDouble()
-//                    val date = viewModel.payPick.value?.second ?: 0
                     val comment = tilComment.editText?.text.toString()
 
                     toBeEdited?.let {
@@ -97,7 +103,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
         }
 
         binding.layoutAddInputFields.btnCancel.setOnLongClickListener {
-            viewModel.removeAllFuelRecords()
+            viewModel.removeAllFuelRecords() // todo: remove this
             true
         }
 
@@ -137,15 +143,6 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
             til.error = null
         }
         return true
-    }
-
-    private fun testInputTemp() {
-        val bs = StringBuilder()
-        bs.appendLine(binding.layoutAddInputFields.tilOdometerStatus.editText?.text.toString())
-        bs.appendLine(binding.layoutAddInputFields.tilLiters.editText?.text.toString())
-        bs.appendLine(viewModel.dayPick.value?.second?.toDateString())
-        bs.appendLine(binding.layoutAddInputFields.tilComment.editText?.text.toString())
-        flashMessage(this, bs.toString())
     }
 
     companion object {

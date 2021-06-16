@@ -2,6 +2,7 @@ package hr.trailovic.fuelqinfo.database
 
 import androidx.room.*
 import hr.trailovic.fuelqinfo.model.FuelRecord
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FuelRecordDao {
@@ -19,4 +20,7 @@ interface FuelRecordDao {
     suspend fun removeAllFuelRecords()
 
     // todo: implement get with Kotlin Flow
+
+    @Query("SELECT * FROM FuelRecord")
+    fun getAllFuelRecords(): Flow<List<FuelRecord>>
 }
