@@ -66,6 +66,7 @@ class StatsAdapter : RecyclerView.Adapter<StatsAdapter.StatsViewHolder>() {
                 }
             }
             statElement.list?.let { list ->
+                //todo: create function for setting the chart
                 itemStatisticsBinding.cubiclinechart.visibility = View.VISIBLE
 
                 itemStatisticsBinding.cubiclinechart.isUseCubic = list.size <= 10

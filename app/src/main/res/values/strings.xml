@@ -10,4 +10,5 @@
     <string name="pick_the_date_of_refueling">Pick the date of refueling</string>
     <string name="comment">Comment</string>
     <string name="add_new_refueling_data">Add new refueling data</string>
+    <string name="delete">Delete</string>
 </resources>

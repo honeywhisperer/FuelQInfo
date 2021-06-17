@@ -3,9 +3,12 @@ package hr.trailovic.fuelqinfo.view.add
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import hr.trailovic.fuelqinfo.databinding.ActivityAddBinding
@@ -79,6 +82,9 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
             binding.layoutAddInputFields.tilOdometerStatus.editText?.setText(it.odometer.toString())
             binding.layoutAddInputFields.tilLiters.editText?.setText(it.liters.toString())
             binding.layoutAddInputFields.tilComment.editText?.setText(it.comment)
+            binding.layoutAddInputFields.btnDelete.visibility = View.VISIBLE
+        } ?: run {
+            binding.layoutAddInputFields.btnDelete.visibility = View.GONE
         }
     }
 
@@ -106,6 +112,23 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
         binding.layoutAddInputFields.btnCancel.setOnClickListener {
             setResult(Activity.RESULT_CANCELED)
             finish()
+        }
+
+        binding.layoutAddInputFields.btnDelete.setOnClickListener {
+            //todo: add dialog + action to delete single record
+            AlertDialog.Builder(this)
+                .setTitle("Delete this record from the database?")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Delete") { _, _ ->
+                    toBeEdited?.let {
+                        viewModel.removeFuelRecord(it)
+                        Log.d(TAG, "delete: ${it.odometer} : ${it.liters}")
+                        finish()
+                    } ?: run {
+                        Log.e(TAG, "delete: error")
+                    }
+                }
+                .show()
         }
 
         binding.layoutAddInputFields.rgDate.setOnCheckedChangeListener { _, _ ->

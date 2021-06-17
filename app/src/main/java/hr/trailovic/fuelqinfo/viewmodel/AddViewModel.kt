@@ -86,4 +86,10 @@ class AddViewModel @Inject constructor(
         }
     }
 
+    fun removeFuelRecord(fuelRecord: FuelRecord){
+        viewModelScope.launch {
+            repo.removeFuelRecordSuspended(fuelRecord)
+        }
+    }
+
 }
